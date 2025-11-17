@@ -1,93 +1,109 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-import requests
 import os
+from pathlib import Path
 from urllib.parse import urlparse
-import uvicorn
+
+import httpx
+from fastapi import FastAPI, HTTPException, Request, Body
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+
+BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI()
 
-# Разрешаем запросы с любых origin (удобно для тестов)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Папка для сохранения mp3
+STORAGE_DIR = os.getenv("STORAGE_DIR", str(BASE_DIR / "files"))
+os.makedirs(STORAGE_DIR, exist_ok=True)
 
-# Каталог для хранения mp3.
-# В Railway лучше примонтировать Volume в /data
-DATA_DIR = os.getenv("DATA_DIR", "data")
-os.makedirs(DATA_DIR, exist_ok=True)
+# Отдаём mp3 как статику по /files/*
+app.mount("/files", StaticFiles(directory=STORAGE_DIR), name="files")
 
+# Статика фронта (JS/CSS) по /static/*
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-def extract_talk_id(url: str) -> str:
-    """
-    Извлекаем audXXXXX из presigned URL
-    .../audqdmn635tp58l3ugmf?X-Amz-...
-    -> audqdmn635tp58l3ugmf
-    """
-    parsed = urlparse(url)
-    base = os.path.basename(parsed.path)
-    base = base.split(".")[0]
-    return base or "unknown"
+# Шаблоны HTML
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
-def download_and_save(talk_id: str, url: str) -> str:
-    """
-    Качаем mp3 по presigned URL и кладём в DATA_DIR/{talk_id}.mp3.
-    Возвращаем публичную ссылку на файл.
-    """
-    filename = f"{talk_id}.mp3"
-    path = os.path.join(DATA_DIR, filename)
-
-    r = requests.get(url, timeout=60)
-    r.raise_for_status()
-
-    with open(path, "wb") as f:
-        f.write(r.content)
-
-    public_url = f"/files/{filename}"
-    return public_url
+@app.get("/", include_in_schema=False)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.post("/upload_urls")
-def upload_urls(urls: list[str]):
-    """
-    Тело запроса:
-    [
-      "https://storage.yandexcloud.net/...audXXXX...?X-Amz-...",
-      ...
-    ]
-    """
-    result = []
+class UploadedFile(BaseModel):
+    talkId: str
+    publicUrl: str
 
-    for url in urls:
-        talk_id = extract_talk_id(url)
-        try:
-            public_path = download_and_save(talk_id, url)
-            result.append(
-                {
-                    "talkId": talk_id,
-                    # Railway сам подставит домен, важно только путь
-                    "publicUrl": public_path,
-                }
+
+async def process_urls(raw: str, request: Request) -> list[UploadedFile]:
+    # raw — всё тело запроса, как есть (text/plain)
+    urls = [part.strip() for part in raw.split() if part.strip()]
+
+    if not urls:
+        raise HTTPException(status_code=400, detail="No URLs provided")
+
+    results: list[UploadedFile] = []
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        for url in urls:
+            parsed = urlparse(url)
+
+            # Берём последний сегмент пути как talkId
+            filename_part = parsed.path.rstrip("/").split("/")[-1]
+            if not filename_part:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot extract talkId from URL: {url}",
+                )
+
+            talk_id = filename_part
+            target_filename = f"{talk_id}.mp3"
+            target_path = os.path.join(STORAGE_DIR, target_filename)
+
+            # Скачиваем файл по presigned URL
+            resp = await client.get(url)
+            try:
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to download {url}: {e}",
+                )
+
+            with open(target_path, "wb") as f:
+                f.write(resp.content)
+
+            base_url = str(request.base_url).rstrip("/")
+            public_url = f"{base_url}/files/{target_filename}"
+
+            results.append(
+                UploadedFile(
+                    talkId=talk_id,
+                    publicUrl=public_url,
+                )
             )
-        except Exception as e:
-            result.append({"talkId": talk_id, "error": str(e)})
 
-    return JSONResponse(result)
+    return results
 
 
-@app.get("/files/{filename}")
-def serve_file(filename: str):
-    path = os.path.join(DATA_DIR, filename)
-    if os.path.exists(path):
-        return FileResponse(path, media_type="audio/mpeg")
-    return JSONResponse({"error": "not found"}, status_code=404)
+# 1) JSON-ответ
+@app.post("/upload_urls", response_model=list[UploadedFile])
+async def upload_urls(
+    request: Request,
+    raw: str = Body(..., media_type="text/plain"),
+):
+    return await process_urls(raw, request)
 
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", "5000"))
-    uvicorn.run("server:app", host="0.0.0.0", port=port)
+# 2) Чистые ссылки (под TSV/копипасту) — одна ссылка на строку
+@app.post("/upload_urls_tsv", response_class=PlainTextResponse)
+async def upload_urls_tsv(
+    request: Request,
+    raw: str = Body(..., media_type="text/plain"),
+):
+    files = await process_urls(raw, request)
+    lines = [f.publicUrl for f in files]
+    return "\n".join(lines)
+
