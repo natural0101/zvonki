@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>SpeechMP3 Ops Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind через CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandLavenderLight: '#f7ecff',
+            brandLavender: '#e1cffd',
+            brandLavenderDeep: '#b38dff',
+            brandInk: '#3a2a4f',
+            brandPink: '#ff6fd1',
+            brandPinkSoft: '#ffb3e8',
+            brandMint: '#4ef2c5'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --ink: #3a2a4f;
+      --lavender-0: #f7ecff;
+      --lavender-1: #e6d6ff;
+      --lavender-2: #ddc5ff;
+      --lavender-3: #b38dff;
+      --panel-shadow: 0 18px 40px rgba(149, 113, 232, 0.25);
+      --panel-border: rgba(255, 255, 255, 0.65);
+      --panel-bg-strong: rgba(36, 23, 64, 0.98);
+      --panel-border-strong: rgba(255, 255, 255, 0.12);
+      --panel-text-strong: #f8f3ff;
+      --accent-pink: #ff6fd1;
+      --accent-pink-soft: #ffb3e8;
+      --accent-mint: #4ef2c5;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 0%, var(--lavender-0) 0%, var(--lavender-1) 45%, var(--lavender-2) 100%);
+      color: var(--ink);
+    }
+
+    .glass {
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.92),
+        rgba(244, 228, 255, 0.96)
+      );
+      border-radius: 1.75rem;
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .glass-soft {
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.9),
+        rgba(240, 220, 255, 0.94)
+      );
+      border-radius: 1.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 14px 32px rgba(156, 120, 232, 0.18);
+      backdrop-filter: blur(18px);
+    }
+
+    .field-base {
+      background: var(--panel-bg-strong);
+      border: 1px solid var(--panel-border-strong);
+      color: var(--panel-text-strong);
+    }
+
+    .field-base::placeholder {
+      color: rgba(229, 215, 255, 0.7);
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at 0 0, var(--accent-pink-soft) 0%, var(--accent-pink) 45%, var(--lavender-3) 100%);
+      box-shadow:
+        0 12px 28px rgba(255, 111, 209, 0.45);
+      color: #2b153b;
+      border-radius: 9999px;
+      transition: transform 150ms ease-out, box-shadow 150ms ease-out, filter 150ms ease-out;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(255, 111, 209, 0.6);
+      filter: brightness(1.03);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 22px rgba(255, 111, 209, 0.4);
+    }
+
+    .btn-secondary {
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(210, 182, 255, 0.9);
+      color: var(--ink);
+      transition: background-color 140ms ease-out, box-shadow 140ms ease-out;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(248, 236, 255, 0.98);
+      box-shadow: 0 8px 20px rgba(149, 113, 232, 0.18);
+    }
+
+    .chip {
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(210, 182, 255, 0.9);
+      color: var(--ink);
+      font-size: 11px;
+      padding: 4px 10px;
+    }
+
+    .glow-dot {
+      box-shadow: 0 0 14px rgba(78, 242, 197, 0.9);
+    }
+
+    #urls-input,
+    #log-panel,
+    #results-panel {
+      border-radius: 1.5rem;
+    }
+
+    #results-panel table thead {
+      background: rgba(30, 18, 60, 0.98);
+      color: rgba(233, 223, 255, 0.9);
+    }
+
+    #results-panel table tbody tr td {
+      color: var(--panel-text-strong);
+    }
+
+    #progress-bar {
+      background-image: linear-gradient(90deg, var(--accent-pink), var(--accent-pink-soft), var(--accent-mint));
+    }
+
+    h1 {
+      color: #2a183f;
+    }
+
+    h2 {
+      color: #3c2557;
+    }
+
+    header p,
+    p,
+    label {
+      color: rgba(71, 50, 114, 0.86);
+    }
+
+    .scroll-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scroll-thin::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-thin::-webkit-scrollbar-thumb {
+      background-color: rgba(196, 171, 255, 0.9);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+  <div class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="px-6 sm:px-10 pt-6 pb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-2xl glass-soft flex items-center justify-center">
+            <span class="text-xs font-semibold tracking-[0.22em] text-brandPink">SM</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-semibold tracking-tight">
+                SpeechMP3 Ops Panel
+              </h1>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.16em] bg-[rgba(78,242,197,0.15)] text-[rgba(4,120,87,0.95)] border border-[rgba(16,185,129,0.45)] flex items-center gap-1">
+                <span class="inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent-mint)] glow-dot"></span>
+                Online
+              </span>
+            </div>
+            <p class="text-xs mt-0.5">
+              Вставь пресайны — получи стабильные mp3-ссылки. Без ручного геморроя.
+            </p>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-3 text-xs">
+          <span class="chip flex items-center gap-1">
+            <span class="inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent-mint)] glow-dot"></span>
+            Локальный сервер
+          </span>
+          <span class="text-[11px] opacity-70">
+            Средний размер звонка ≈ 300 КБ
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 px-4 sm:px-10 pb-8">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
+
+        <!-- ВВОД ССЫЛОК -->
+        <section class="lg:col-span-2 glass p-5 sm:p-6 relative overflow-hidden">
+          <div class="pointer-events-none absolute -right-24 -top-24 h-40 w-40 rounded-full bg-[rgba(255,111,209,0.18)] blur-3xl"></div>
+          <div class="pointer-events-none absolute -left-32 -bottom-24 h-48 w-48 rounded-full bg-[rgba(179,141,255,0.25)] blur-3xl"></div>
+
+          <header class="flex items-center justify-between mb-4 relative">
+            <div>
+              <h2 class="text-sm font-semibold tracking-wide uppercase">
+                Ввод ссылок
+              </h2>
+              <p class="text-xs mt-1">
+                Вставь список presigned URL из SpeechSense, по одному в строке.
+              </p>
+            </div>
+            <div class="hidden sm:flex items-center gap-2 text-[11px]">
+              <span class="chip">
+                Batch-режим
+              </span>
+            </div>
+          </header>
+
+          <div class="space-y-4 relative">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <!-- textarea -->
+              <div class="flex-1">
+                <label for="urls-input" class="block text-xs font-medium mb-1">
+                  Presigned URL
+                </label>
+                <div class="relative">
+                  <textarea
+                    id="urls-input"
+                    class="w-full h-40 sm:h-44 resize-y field-base px-3.5 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)] focus:border-transparent scroll-thin"
+                    placeholder="https://storage.speechsense.ai/presigned/....&#10;https://storage.speechsense.ai/presigned/....&#10;..."
+                  ></textarea>
+                  <div class="absolute right-3 bottom-3 text-[10px] opacity-70 text-[var(--panel-text-strong)]">
+                    Вставка из буфера: Ctrl + V
+                  </div>
+                </div>
+              </div>
+
+              <!-- лимит и кнопки -->
+              <div class="w-full sm:w-40 flex sm:flex-col gap-3">
+                <div class="flex-1">
+                  <label for="limit-input" class="block text-xs font-medium mb-1">
+                    Лимит ссылок
+                  </label>
+                  <input
+                    id="limit-input"
+                    type="number"
+                    min="1"
+                    class="w-full field-base px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)] focus:border-transparent"
+                    placeholder="например, 15"
+                  />
+                </div>
+
+                <div class="flex-1 flex sm:flex-col gap-2">
+                  <button
+                    id="btn-submit"
+                    class="btn-primary w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-semibold tracking-wide"
+                  >
+                    Запустить обработку
+                  </button>
+                  <button
+                    id="btn-clear"
+                    class="btn-secondary w-full inline-flex items-center justify-center px-4 py-2.5 text-[11px] font-medium"
+                  >
+                    Очистить поле
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="alert-bar" class="hidden mt-1 text-[11px] rounded-2xl px-3 py-2 field-base">
+            </div>
+          </div>
+        </section>
+
+        <!-- СТАТУС -->
+        <section class="glass-soft p-5 flex flex-col">
+          <header class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-semibold tracking-wide uppercase">
+                Статус
+              </h2>
+              <p class="text-xs mt-1">
+                Что сейчас происходит с твоей пачкой ссылок.
+              </p>
+            </div>
+          </header>
+
+          <div class="space-y-4 flex-1 flex flex-col">
+            <!-- Прогресс -->
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1">
+                <span>Обработка</span>
+                <span id="progress-label" class="opacity-70">0 / 0</span>
+              </div>
+              <div class="h-2.5 rounded-full bg-[rgba(255,255,255,0.75)] overflow-hidden">
+                <div
+                  id="progress-bar"
+                  class="h-full w-0 transition-all duration-300"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Карточки статусов -->
+            <div class="grid grid-cols-3 gap-2 text-[11px]">
+              <div class="rounded-2xl px-3 py-2 bg-[rgba(78,242,197,0.12)] border border-[rgba(78,242,197,0.55)]">
+                <div class="text-[rgba(4,120,87,0.95)] font-medium">Успешно</div>
+                <div id="stat-success" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
+              </div>
+              <div class="rounded-2xl px-3 py-2 bg-[rgba(255,179,232,0.16)] border border-[rgba(255,179,232,0.7)]">
+                <div class="text-[rgba(214,92,154,0.95)] font-medium">В работе</div>
+                <div id="stat-pending" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
+              </div>
+              <div class="rounded-2xl px-3 py-2 bg-[rgba(254,202,202,0.16)] border border-[rgba(248,113,113,0.75)]">
+                <div class="text-[rgba(185,28,28,0.9)] font-medium">Ошибки</div>
+                <div id="stat-error" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
+              </div>
+            </div>
+
+            <!-- Лог -->
+            <div class="flex-1 mt-2">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[11px]">Лог последних операций</span>
+                <button
+                  id="btn-clear-log"
+                  class="text-[10px] opacity-70 hover:opacity-100"
+                >
+                  Очистить
+                </button>
+              </div>
+              <div
+                id="log-panel"
+                class="text-[11px] field-base px-3 py-2 h-28 overflow-auto scroll-thin"
+              >
+                Ждём первую загрузку…
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- РЕЗУЛЬТАТЫ -->
+        <section class="lg:col-span-3 glass-soft p-5">
+          <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+            <div>
+              <h2 class="text-sm font-semibold tracking-wide uppercase">
+                Готовые стабильные ссылки
+              </h2>
+              <p class="text-xs mt-1">
+                Эти URL можно отдавать наружу или прокидывать в другие системы.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 text-[11px]">
+              <button
+                id="btn-copy-tsv"
+                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
+              >
+                Скопировать в TSV
+              </button>
+              <button
+                id="btn-copy-urls"
+                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
+              >
+                Скопировать только ссылки
+              </button>
+            </div>
+          </header>
+
+          <div
+            id="results-panel"
+            class="mt-2 field-base border border-[rgba(255,255,255,0.12)] rounded-2xl overflow-auto scroll-thin max-h-72"
+          >
+            <table class="min-w-full text-[11px] text-left">
+              <thead class="uppercase tracking-[0.12em] text-[10px] border-b border-[rgba(148,163,184,0.28)]">
+                <tr>
+                  <th class="px-3 py-2.5">#</th>
+                  <th class="px-3 py-2.5">talkId / исходный</th>
+                  <th class="px-3 py-2.5">Стабильный mp3 URL</th>
+                  <th class="px-3 py-2.5 text-right">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="results-body" class="divide-y divide-[rgba(148,163,184,0.28)]">
+                <tr>
+                  <td colspan="4" class="px-3 py-4 text-center text-[rgba(233,223,255,0.7)]">
+                    Пока нет данных. Запусти обработку, чтобы увидеть таблицу.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
