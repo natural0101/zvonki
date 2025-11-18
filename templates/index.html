@@ -42,7 +42,7 @@
       --accent-mint: #4ef2c5;
     }
 
-    /* фон: лаванда + бумага */
+    /* фон: лаванда + бумага по ВСЕЙ странице */
     body {
       min-height: 100vh;
       background:
@@ -50,22 +50,6 @@
         radial-gradient(circle at 10% 0%, var(--lavender-0) 0%, var(--lavender-1) 45%, var(--lavender-2) 100%) !important;
       background-blend-mode: soft-light !important;
       color: var(--ink);
-      position: relative;
-    }
-
-    /* нижний пастельный рисунок как фон */
-    body::after {
-      content: "";
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: -80px; /* поднимает рисунок выше края экрана */
-      height: 260px;
-      background: url("/static/pastel_landscape.png") center bottom no-repeat;
-      background-size: cover;
-      pointer-events: none;
-      opacity: 0.95;
-      z-index: 0;
     }
 
     .glass {
@@ -173,8 +157,18 @@
   </style>
 </head>
 
-<body class="antialiased">
-  <div class="min-h-screen flex flex-col relative z-10 pb-40">
+<body class="antialiased relative">
+  <!-- Лавандовый рисунок (вариант A) фиксированно снизу -->
+  <div class="fixed inset-x-0 bottom-0 h-72 pointer-events-none z-0">
+    <img
+      src="/static/pastel_landscape.png"
+      alt=""
+      class="w-full h-full object-cover"
+    />
+  </div>
+
+  <!-- Основной контент поверх -->
+  <div class="min-h-screen flex flex-col relative z-10 pb-48">
 
     <!-- HEADER -->
     <header class="px-6 sm:px-10 pt-6 pb-4">
@@ -188,7 +182,11 @@
               <h1 class="text-lg sm:text-xl font-semibold tracking-tight">
                 SpeechMP3 Ops Panel
               </h1>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.16em] bg-[rgba(78,242,197,0.15)] text-[rgba(4,120,87,0.95)] border border-[rgba(16,185,129,0.45)] flex items-center gap-1">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase
+                           tracking-[0.16em] bg-[rgba(78,242,197,0.15)]
+                           text-[rgba(4,120,87,0.95)]
+                           border border-[rgba(16,185,129,0.45)]
+                           flex items-center gap-1">
                 <span class="inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent-mint)] glow-dot"></span>
                 Online
               </span>
@@ -246,7 +244,9 @@
                 <div class="relative">
                   <textarea
                     id="urls-input"
-                    class="w-full h-40 sm:h-44 resize-y field-base px-3.5 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)] focus:border-transparent scroll-thin"
+                    class="w-full h-40 sm:h-44 resize-y field-base px-3.5 py-3 text-xs
+                           focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)]
+                           focus:border-transparent scroll-thin"
                     placeholder="https://storage.speechsense.ai/presigned/....&#10;https://storage.speechsense.ai/presigned/....&#10;..."
                   ></textarea>
                   <div class="absolute right-3 bottom-3 text-[10px] opacity-70 text-[var(--panel-text-strong)]">
@@ -265,7 +265,9 @@
                     id="limit-input"
                     type="number"
                     min="1"
-                    class="w-full field-base px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)] focus:border-transparent"
+                    class="w-full field-base px-3 py-2.5 text-xs
+                           focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)]
+                           focus:border-transparent"
                     placeholder="например, 15"
                   />
                 </div>
@@ -416,3 +418,4 @@
   <script src="/static/main.js"></script>
 </body>
 </html>
+
