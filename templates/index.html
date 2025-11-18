@@ -47,8 +47,8 @@
       min-height: 100vh;
       background:
         url("/static/paper_texture.png") repeat,
-        radial-gradient(circle at 10% 0%, var(--lavender-0) 0%, var(--lavender-1) 45%, var(--lavender-2) 100%);
-      background-blend-mode: soft-light;
+        radial-gradient(circle at 10% 0%, var(--lavender-0) 0%, var(--lavender-1) 45%, var(--lavender-2) 100%) !important;
+      background-blend-mode: soft-light !important;
       color: var(--ink);
       position: relative;
     }
@@ -61,14 +61,13 @@
       left: 0;
       width: 100%;
       height: 260px;
-      background: url("/static/pastel_landscape.png") center bottom no-repeat;
-      background-size: cover;
+      background: url("/static/pastel_landscape.png") center bottom no-repeat !important;
+      background-size: cover !important;
       pointer-events: none;
       opacity: 0.92;
       z-index: -1;
     }
 
-    /* liquid glass панели */
     .glass {
       background: rgba(255, 255, 255, 0.22);
       backdrop-filter: blur(22px);
@@ -97,7 +96,6 @@
       color: rgba(229, 215, 255, 0.7);
     }
 
-    /* кнопка запуска: розовое стекло */
     .btn-primary {
       background: radial-gradient(circle at 0 0, var(--accent-pink-soft) 0%, var(--accent-pink) 45%, var(--lavender-3) 100%);
       box-shadow:
@@ -118,7 +116,6 @@
       box-shadow: 0 8px 22px rgba(255, 111, 209, 0.4);
     }
 
-    /* вторичные кнопки */
     .btn-secondary {
       border-radius: 9999px;
       background: rgba(255, 255, 255, 0.9);
@@ -162,20 +159,6 @@
 
     #progress-bar {
       background-image: linear-gradient(90deg, var(--accent-pink), var(--accent-pink-soft), var(--accent-mint));
-    }
-
-    h1 {
-      color: #2a183f;
-    }
-
-    h2 {
-      color: #3c2557;
-    }
-
-    header p,
-    p,
-    label {
-      color: rgba(71, 50, 114, 0.86);
     }
 
     .scroll-thin::-webkit-scrollbar {
@@ -256,7 +239,6 @@
 
           <div class="space-y-4 relative">
             <div class="flex flex-col sm:flex-row gap-3">
-              <!-- textarea -->
               <div class="flex-1">
                 <label for="urls-input" class="block text-xs font-medium mb-1">
                   Presigned URL
@@ -273,7 +255,6 @@
                 </div>
               </div>
 
-              <!-- лимит и кнопки -->
               <div class="w-full sm:w-40 flex sm:flex-col gap-3">
                 <div class="flex-1">
                   <label for="limit-input" class="block text-xs font-medium mb-1">
@@ -324,21 +305,16 @@
           </header>
 
           <div class="space-y-4 flex-1 flex flex-col">
-            <!-- Прогресс -->
             <div>
               <div class="flex items-center justify-between text-[11px] mb-1">
                 <span>Обработка</span>
                 <span id="progress-label" class="opacity-70">0 / 0</span>
               </div>
               <div class="h-2.5 rounded-full bg-[rgba(255,255,255,0.75)] overflow-hidden">
-                <div
-                  id="progress-bar"
-                  class="h-full w-0 transition-all duration-300"
-                ></div>
+                <div id="progress-bar" class="h-full w-0 transition-all duration-300"></div>
               </div>
             </div>
 
-            <!-- Карточки статусов -->
             <div class="grid grid-cols-3 gap-2 text-[11px]">
               <div class="rounded-2xl px-3 py-2 bg-[rgba(78,242,197,0.12)] border border-[rgba(78,242,197,0.55)]">
                 <div class="text-[rgba(4,120,87,0.95)] font-medium">Успешно</div>
@@ -354,21 +330,14 @@
               </div>
             </div>
 
-            <!-- Лог -->
             <div class="flex-1 mt-2">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-[11px]">Лог последних операций</span>
-                <button
-                  id="btn-clear-log"
-                  class="text-[10px] opacity-70 hover:opacity-100"
-                >
+                <button id="btn-clear-log" class="text-[10px] opacity-70 hover:opacity-100">
                   Очистить
                 </button>
               </div>
-              <div
-                id="log-panel"
-                class="text-[11px] field-base px-3 py-2 h-28 overflow-auto scroll-thin"
-              >
+              <div id="log-panel" class="text-[11px] field-base px-3 py-2 h-28 overflow-auto scroll-thin">
                 Ждём первую загрузку…
               </div>
             </div>
@@ -388,25 +357,16 @@
             </div>
 
             <div class="flex items-center gap-2 text-[11px]">
-              <button
-                id="btn-copy-tsv"
-                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
-              >
+              <button id="btn-copy-tsv" class="btn-secondary inline-flex items-center justify-center px-3 py-2">
                 Скопировать в TSV
               </button>
-              <button
-                id="btn-copy-urls"
-                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
-              >
+              <button id="btn-copy-urls" class="btn-secondary inline-flex items-center justify-center px-3 py-2">
                 Скопировать только ссылки
               </button>
             </div>
           </header>
 
-          <div
-            id="results-panel"
-            class="mt-2 field-base border border-[rgba(255,255,255,0.12)] rounded-2xl overflow-auto scroll-thin max-h-72"
-          >
+          <div id="results-panel" class="mt-2 field-base border border-[rgba(255,255,255,0.12)] rounded-2xl overflow-auto scroll-thin max-h-72">
             <table class="min-w-full text-[11px] text-left">
               <thead class="uppercase tracking-[0.12em] text-[10px] border-b border-[rgba(148,163,184,0.28)]">
                 <tr>
@@ -434,3 +394,4 @@
   <script src="/static/main.js"></script>
 </body>
 </html>
+
