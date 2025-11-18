@@ -53,20 +53,6 @@
       position: relative;
     }
 
-    /* нижний пастельный рисунок */
-    body::after {
-      content: "";
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 260px;
-      background: url("/static/pastel_landscape.png") center bottom no-repeat !important;
-      background-size: cover !important;
-      pointer-events: none;
-      opacity: 0.92;
-    }
-
     .glass {
       background: rgba(255, 255, 255, 0.22);
       backdrop-filter: blur(22px);
@@ -173,9 +159,19 @@
   </style>
 </head>
 
-<body class="antialiased">
-  <div class="min-h-screen flex flex-col">
+<body class="antialiased relative">
+  <!-- слой с пастельным рисунком снизу -->
+  <div class="fixed inset-x-0 bottom-0 h-64 pointer-events-none z-0">
+    <img
+      src="/static/pastel_landscape.png"
+      alt=""
+      class="w-full h-full object-cover"
+    />
+  </div>
 
+  <!-- основной контент поверх -->
+  <div class="min-h-screen flex flex-col relative z-10">
+    <!-- дальше весь твой текущий контент без изменений -->
     <!-- HEADER -->
     <header class="px-6 sm:px-10 pt-6 pb-4">
       <div class="flex items-center justify-between">
