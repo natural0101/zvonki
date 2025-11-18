@@ -19,6 +19,14 @@
             brandPink: '#ff6fd1',
             brandPinkSoft: '#ffb3e8',
             brandMint: '#4ef2c5'
+          },
+          boxShadow: {
+            glass: '0 18px 45px rgba(28, 9, 80, 0.28)',
+            soft: '0 10px 30px rgba(17, 24, 39, 0.20)'
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+            '4xl': '2rem'
           }
         }
       }
@@ -26,396 +34,323 @@
   </script>
 
   <style>
-    :root {
-      --ink: #3a2a4f;
-      --lavender-0: #f7ecff;
-      --lavender-1: #e6d6ff;
-      --lavender-2: #ddc5ff;
-      --lavender-3: #b38dff;
-      --panel-shadow: 0 18px 40px rgba(149, 113, 232, 0.25);
-      --panel-border: rgba(255, 255, 255, 0.65);
-      --panel-bg-strong: rgba(36, 23, 64, 0.96);
-      --panel-border-strong: rgba(255, 255, 255, 0.12);
-      --panel-text-strong: #f8f3ff;
-      --accent-pink: #ff6fd1;
-      --accent-pink-soft: #ffb3e8;
-      --accent-mint: #4ef2c5;
-    }
-
-    /* фон: лаванда + бумага по ВСЕЙ странице */
     body {
+      margin: 0;
       min-height: 100vh;
-      background:
-        url("/static/paper_texture.png") repeat,
-        radial-gradient(circle at 10% 0%, var(--lavender-0) 0%, var(--lavender-1) 45%, var(--lavender-2) 100%) !important;
-      background-blend-mode: soft-light !important;
-      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background-color: #f7ecff; /* резервный фон */
     }
 
-    .glass {
-      background: rgba(255, 255, 255, 0.22);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border-radius: 1.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      box-shadow: var(--panel-shadow);
+    .page-shell {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
-    .glass-soft {
-      background: rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 1.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      box-shadow: 0 14px 32px rgba(156, 120, 232, 0.20);
+    /* Лавандовый градиент + бумажная текстура на всю страницу */
+    .page-shell::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.9) 0, rgba(255, 255, 255, 0) 55%),
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.7) 0, rgba(255, 255, 255, 0) 55%),
+        linear-gradient(180deg, #f7ecff 0%, #e1cffd 40%, #e1cffd 100%),
+        url("/static/paper_texture.png");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 800px 800px;
+      background-repeat: no-repeat, no-repeat, no-repeat, repeat;
     }
 
-    .field-base {
-      background: var(--panel-bg-strong);
-      border: 1px solid var(--panel-border-strong);
-      color: var(--panel-text-strong);
+    /* Пастельный рисунок снизу — отдельный слой, без смешивания */
+    .bottom-illustration {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: min(40vh, 340px);
+      z-index: -1;
+      pointer-events: none;
+
+      background-image: url("/static/pastel_landscape.png");
+      background-size: cover;
+      background-position: center bottom;
+      background-repeat: no-repeat;
     }
 
-    .field-base::placeholder {
-      color: rgba(229, 215, 255, 0.7);
+    /* Контентный контейнер, чтобы не заезжать на рисунок */
+    .main-content {
+      position: relative;
+      z-index: 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 24px 380px; /* нижний паддинг ≥ высоте bottom-illustration */
+      box-sizing: border-box;
     }
 
-    .btn-primary {
-      background: radial-gradient(circle at 0 0, var(--accent-pink-soft) 0%, var(--accent-pink) 45%, var(--lavender-3) 100%);
-      box-shadow: 0 12px 28px rgba(255, 111, 209, 0.45);
-      color: #2b153b;
-      border-radius: 9999px;
-      transition: transform 150ms ease-out, box-shadow 150ms ease-out, filter 150ms ease-out;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 40px rgba(255, 111, 209, 0.6);
-      filter: brightness(1.03);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-      box-shadow: 0 8px 22px rgba(255, 111, 209, 0.4);
-    }
-
-    .btn-secondary {
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(210, 182, 255, 0.9);
-      color: var(--ink);
-      transition: background-color 140ms ease-out, box-shadow 140ms ease-out;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(248, 236, 255, 0.98);
-      box-shadow: 0 8px 20px rgba(149, 113, 232, 0.18);
-    }
-
-    .chip {
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid rgba(210, 182, 255, 0.9);
-      color: var(--ink);
-      font-size: 11px;
-      padding: 4px 10px;
-    }
-
-    .glow-dot {
-      box-shadow: 0 0 14px rgba(78, 242, 197, 0.9);
-    }
-
-    #urls-input,
-    #log-panel,
-    #results-panel {
+    .glass-card {
+      background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.7) 40%, rgba(255, 255, 255, 0.65) 100%);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 18px 45px rgba(28, 9, 80, 0.28);
       border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    #results-panel table thead {
-      background: rgba(30, 18, 60, 0.98);
-      color: rgba(233, 223, 255, 0.9);
+    .card-header {
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #7b669c;
     }
 
-    #results-panel table tbody tr td {
-      color: var(--panel-text-strong);
+    .pill {
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.16rem 0.7rem;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
     }
 
-    #progress-bar {
-      background-image: linear-gradient(90deg, var(--accent-pink), var(--accent-pink-soft), var(--accent-mint));
+    .pill-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #4ef2c5;
+      box-shadow: 0 0 0 3px rgba(78, 242, 197, 0.35);
     }
 
-    .scroll-thin::-webkit-scrollbar {
-      width: 6px;
-    }
-    .scroll-thin::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .scroll-thin::-webkit-scrollbar-thumb {
-      background-color: rgba(196, 171, 255, 0.9);
-      border-radius: 9999px;
+    textarea:focus,
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(179, 141, 255, 0.8), 0 0 0 4px rgba(179, 141, 255, 0.25);
     }
   </style>
 </head>
 
-<body class="antialiased relative">
-  <!-- Лавандовый рисунок (вариант A) фиксированно снизу -->
-  <div class="fixed inset-x-0 bottom-0 h-72 pointer-events-none z-0">
-    <img
-      src="/static/pastel_landscape.png"
-      alt=""
-      class="w-full h-full object-cover"
-    />
-  </div>
+<body>
+  <div class="page-shell">
+    <!-- Фиксированный рисунок-пейзаж снизу -->
+    <div class="bottom-illustration"></div>
 
-  <!-- Основной контент поверх -->
-  <div class="min-h-screen flex flex-col relative z-10 pb-48">
-
-    <!-- HEADER -->
-    <header class="px-6 sm:px-10 pt-6 pb-4">
-      <div class="flex items-center justify-between">
+    <!-- Основной контент -->
+    <div class="main-content text-brandInk">
+      <!-- Header -->
+      <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-2xl glass-soft flex items-center justify-center">
-            <span class="text-xs font-semibold tracking-[0.22em] text-brandPink">SM</span>
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brandLavenderDeep to-brandPinkSoft shadow-soft text-white font-semibold">
+            SM
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-lg sm:text-xl font-semibold tracking-tight">
+              <h1 class="text-lg sm:text-xl font-semibold text-brandInk">
                 SpeechMP3 Ops Panel
               </h1>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase
-                           tracking-[0.16em] bg-[rgba(78,242,197,0.15)]
-                           text-[rgba(4,120,87,0.95)]
-                           border border-[rgba(16,185,129,0.45)]
-                           flex items-center gap-1">
-                <span class="inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent-mint)] glow-dot"></span>
-                Online
+              <span class="pill">
+                <span class="pill-dot"></span>
+                ONLINE
               </span>
             </div>
-            <p class="text-xs mt-0.5">
-              Вставь пресайны — получи стабильные mp3-ссылки. Без ручного геморроя. <strong>UI v2</strong>
+            <p class="text-xs text-brandInk/70 mt-0.5">
+              Вставь пресайны — получи стабильные mp3-ссылки. Без ручного геморроя. UI v2
             </p>
           </div>
         </div>
 
-        <div class="hidden sm:flex items-center gap-3 text-xs">
-          <span class="chip flex items-center gap-1">
-            <span class="inline-flex h-[6px] w-[6px] rounded-full bg-[var(--accent-mint)] glow-dot"></span>
+        <div class="flex flex-col items-end gap-1 text-[0.7rem] text-brandInk/65">
+          <div class="pill bg-white/80">
             Локальный сервер
-          </span>
-          <span class="text-[11px] opacity-70">
-            Средний размер звонка ≈ 300 КБ
-          </span>
+          </div>
+          <div class="text-[0.7rem]">
+            Средний размер звонка ≈ <span class="font-semibold">300 КБ</span>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <!-- MAIN -->
-    <main class="flex-1 px-4 sm:px-10 pb-8">
-      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
-
-        <!-- ВВОД ССЫЛОК -->
-        <section class="lg:col-span-2 glass p-5 sm:p-6 relative overflow-hidden">
-          <div class="pointer-events-none absolute -right-24 -top-24 h-40 w-40 rounded-full bg-[rgba(255,111,209,0.18)] blur-3xl"></div>
-          <div class="pointer-events-none absolute -left-32 -bottom-24 h-48 w-48 rounded-full bg-[rgba(179,141,255,0.25)] blur-3xl"></div>
-
-          <header class="flex items-center justify-between mb-4 relative">
+      <!-- Верхняя зона: ввод ссылок + статус -->
+      <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)] gap-6 mb-6">
+        <!-- Ввод ссылок -->
+        <div class="glass-card p-5 sm:p-6">
+          <div class="flex justify-between items-start gap-3 mb-4">
             <div>
-              <h2 class="text-sm font-semibold tracking-wide uppercase">
-                Ввод ссылок
-              </h2>
-              <p class="text-xs mt-1">
+              <div class="card-header mb-1">Ввод ссылок</div>
+              <p class="text-xs text-brandInk/70 max-w-md">
                 Вставь список presigned URL из SpeechSense, по одному в строке.
               </p>
             </div>
-            <div class="hidden sm:flex items-center gap-2 text-[11px]">
-              <span class="chip">
-                Batch-режим
-              </span>
-            </div>
-          </header>
+            <button
+              type="button"
+              class="hidden sm:inline-flex items-center justify-center rounded-full border border-white/80 bg-white/80 px-3 py-1 text-[0.7rem] font-medium text-brandInk/80 hover:bg-white transition">
+              Batch-режим
+            </button>
+          </div>
 
-          <div class="space-y-4 relative">
-            <div class="flex flex-col sm:flex-row gap-3">
-              <!-- textarea -->
-              <div class="flex-1">
-                <label for="urls-input" class="block text-xs font-medium mb-1">
-                  Presigned URL
+          <div class="grid grid-cols-[minmax(0,1.8fr)_minmax(0,0.8fr)] gap-4 items-start">
+            <div>
+              <label for="presignedInput" class="block text-[0.72rem] font-medium text-brandInk/70 mb-1.5">
+                Presigned URL
+              </label>
+              <textarea
+                id="presignedInput"
+                class="w-full h-52 rounded-2xl bg-[#1b092f] text-xs text-white/90 px-4 py-3 font-mono leading-relaxed border border-white/10 shadow-inner resize-none"
+                placeholder="https://storage.speechsense.ai/presigned/..."
+              ></textarea>
+              <div class="mt-2 flex justify-between items-center text-[0.7rem] text-brandInk/60">
+                <span class="opacity-70">Вставка из буфера: Ctrl + V</span>
+                <span class="opacity-70">Каждый URL — с новой строки</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <div>
+                <label for="limitInput" class="block text-[0.72rem] font-medium text-brandInk/70 mb-1.5">
+                  Лимит ссылок
                 </label>
-                <div class="relative">
-                  <textarea
-                    id="urls-input"
-                    class="w-full h-40 sm:h-44 resize-y field-base px-3.5 py-3 text-xs
-                           focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)]
-                           focus:border-transparent scroll-thin"
-                    placeholder="https://storage.speechsense.ai/presigned/....&#10;https://storage.speechsense.ai/presigned/....&#10;..."
-                  ></textarea>
-                  <div class="absolute right-3 bottom-3 text-[10px] opacity-70 text-[var(--panel-text-strong)]">
-                    Вставка из буфера: Ctrl + V
-                  </div>
-                </div>
+                <input
+                  id="limitInput"
+                  type="number"
+                  min="1"
+                  class="w-full rounded-2xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-brandInk shadow-inner"
+                  placeholder="например, 15"
+                  value="15"
+                />
               </div>
 
-              <!-- лимит и кнопки -->
-              <div class="w-full sm:w-40 flex sm:flex-col gap-3">
-                <div class="flex-1">
-                  <label for="limit-input" class="block text-xs font-medium mb-1">
-                    Лимит ссылок
-                  </label>
-                  <input
-                    id="limit-input"
-                    type="number"
-                    min="1"
-                    class="w-full field-base px-3 py-2.5 text-xs
-                           focus:outline-none focus:ring-2 focus:ring-[var(--accent-pink)]
-                           focus:border-transparent"
-                    placeholder="например, 15"
-                  />
-                </div>
-
-                <div class="flex-1 flex sm:flex-col gap-2">
-                  <button
-                    id="btn-submit"
-                    class="btn-primary w-full inline-flex items-center justify-center px-4 py-2.5 text-xs font-semibold tracking-wide"
-                  >
-                    Запустить обработку
-                  </button>
-                  <button
-                    id="btn-clear"
-                    class="btn-secondary w-full inline-flex items-center justify-center px-4 py-2.5 text-[11px] font-medium"
-                  >
-                    Очистить поле
-                  </button>
-                </div>
+              <div class="flex flex-col gap-2 mt-1">
+                <button
+                  id="processButton"
+                  type="button"
+                  class="w-full rounded-2xl bg-gradient-to-r from-brandLavenderDeep to-brandPink font-semibold text-sm text-white py-2.5 shadow-glass hover:shadow-soft transition active:scale-[0.99]">
+                  Запустить обработку
+                </button>
+                <button
+                  id="clearInputButton"
+                  type="button"
+                  class="w-full rounded-2xl border border-white/75 bg-white/70 text-[0.8rem] font-medium text-brandInk/80 py-2 hover:bg-white transition">
+                  Очистить поле
+                </button>
               </div>
-            </div>
-
-            <div id="alert-bar" class="hidden mt-1 text-[11px] rounded-2xl px-3 py-2 field-base">
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- СТАТУС -->
-        <section class="glass-soft p-5 flex flex-col">
-          <header class="flex items-center justify-between mb-3">
+        <!-- Статус -->
+        <div class="glass-card p-5 sm:p-6">
+          <div class="flex justify-between items-start gap-3 mb-4">
             <div>
-              <h2 class="text-sm font-semibold tracking-wide uppercase">
-                Статус
-              </h2>
-              <p class="text-xs mt-1">
+              <div class="card-header mb-1">Статус</div>
+              <p class="text-xs text-brandInk/70 max-w-xs">
                 Что сейчас происходит с твоей пачкой ссылок.
               </p>
             </div>
-          </header>
+            <div class="text-[0.7rem] text-brandInk/60">
+              <span class="font-semibold" id="statusCounterProcessed">0</span>
+              /
+              <span id="statusCounterTotal">0</span>
+            </div>
+          </div>
 
-          <div class="space-y-4 flex-1 flex flex-col">
-            <!-- Прогресс -->
-            <div>
-              <div class="flex items-center justify-between text-[11px] mb-1">
-                <span>Обработка</span>
-                <span id="progress-label" class="opacity-70">0 / 0</span>
-              </div>
-              <div class="h-2.5 rounded-full bg-[rgba(255,255,255,0.75)] overflow-hidden">
-                <div
-                  id="progress-bar"
-                  class="h-full w-0 transition-all duration-300"
-                ></div>
+          <div class="grid grid-cols-3 gap-2 mb-4 text-[0.75rem]">
+            <div class="rounded-2xl bg-brandMint/10 border border-brandMint/60 px-3 py-2">
+              <div class="text-[0.65rem] uppercase tracking-wide text-brandInk/60 mb-1">Успешно</div>
+              <div class="flex items-baseline gap-1">
+                <span id="badgeSuccess" class="text-base font-semibold text-brandInk">0</span>
               </div>
             </div>
-
-            <!-- Карточки статусов -->
-            <div class="grid grid-cols-3 gap-2 text-[11px]">
-              <div class="rounded-2xl px-3 py-2 bg-[rgba(78,242,197,0.12)] border border-[rgba(78,242,197,0.55)]">
-                <div class="text-[rgba(4,120,87,0.95)] font-medium">Успешно</div>
-                <div id="stat-success" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
-              </div>
-              <div class="rounded-2xl px-3 py-2 bg-[rgba(255,179,232,0.16)] border border-[rgba(255,179,232,0.7)]">
-                <div class="text-[rgba(214,92,154,0.95)] font-medium">В работе</div>
-                <div id="stat-pending" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
-              </div>
-              <div class="rounded-2xl px-3 py-2 bg-[rgba(254,202,202,0.16)] border border-[rgba(248,113,113,0.75)]">
-                <div class="text-[rgba(185,28,28,0.9)] font-medium">Ошибки</div>
-                <div id="stat-error" class="mt-0.5 text-xs text-[var(--ink)]">0</div>
+            <div class="rounded-2xl bg-brandLavender/35 border border-white/70 px-3 py-2">
+              <div class="text-[0.65rem] uppercase tracking-wide text-brandInk/60 mb-1">В работе</div>
+              <div class="flex items-baseline gap-1">
+                <span id="badgeInProgress" class="text-base font-semibold text-brandInk">0</span>
               </div>
             </div>
-
-            <!-- Лог -->
-            <div class="flex-1 mt-2">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[11px]">Лог последних операций</span>
-                <button
-                  id="btn-clear-log"
-                  class="text-[10px] opacity-70 hover:opacity-100"
-                >
-                  Очистить
-                </button>
-              </div>
-              <div
-                id="log-panel"
-                class="text-[11px] field-base px-3 py-2 h-28 overflow-auto scroll-thin"
-              >
-                Ждём первую загрузку…
+            <div class="rounded-2xl bg-brandPinkSoft/20 border border-brandPinkSoft/70 px-3 py-2">
+              <div class="text-[0.65rem] uppercase tracking-wide text-brandInk/70 mb-1">Ошибки</div>
+              <div class="flex items-baseline gap-1">
+                <span id="badgeErrors" class="text-base font-semibold text-brandInk">0</span>
               </div>
             </div>
           </div>
-        </section>
 
-        <!-- РЕЗУЛЬТАТЫ -->
-        <section class="lg:col-span-3 glass-soft p-5">
-          <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-            <div>
-              <h2 class="text-sm font-semibold tracking-wide uppercase">
-                Готовые стабильные ссылки
-              </h2>
-              <p class="text-xs mt-1">
-                Эти URL можно отдавать наружу или прокидывать в другие системы.
-              </p>
-            </div>
-
-            <div class="flex items-center gap-2 text-[11px]">
-              <button
-                id="btn-copy-tsv"
-                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
-              >
-                Скопировать в TSV
-              </button>
-              <button
-                id="btn-copy-urls"
-                class="btn-secondary inline-flex items-center justify-center px-3 py-2"
-              >
-                Скопировать только ссылки
-              </button>
-            </div>
-          </header>
+          <div class="flex justify-between items-center mb-2 text-[0.72rem]">
+            <span class="font-medium text-brandInk/80">Лог последних операций</span>
+            <button
+              id="clearLogButton"
+              type="button"
+              class="text-[0.7rem] text-brandInk/60 hover:text-brandInk/90">
+              Очистить
+            </button>
+          </div>
 
           <div
-            id="results-panel"
-            class="mt-2 field-base border border-[rgba(255,255,255,0.12)] rounded-2xl overflow-auto scroll-thin max-h-72"
-          >
-            <table class="min-w-full text-[11px] text-left">
-              <thead class="uppercase tracking-[0.12em] text-[10px] border-b border-[rgba(148,163,184,0.28)]">
-                <tr>
-                  <th class="px-3 py-2.5">#</th>
-                  <th class="px-3 py-2.5">talkId / исходный</th>
-                  <th class="px-3 py-2.5">Стабильный mp3 URL</th>
-                  <th class="px-3 py-2.5 text-right">Действия</th>
-                </tr>
-              </thead>
-              <tbody id="results-body" class="divide-y divide-[rgba(148,163,184,0.28)]">
-                <tr>
-                  <td colspan="4" class="px-3 py-4 text-center text-[rgba(233,223,255,0.7)]">
-                    Пока нет данных. Запусти обработку, чтобы увидеть таблицу.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            id="logArea"
+            class="h-32 rounded-2xl bg-[#1b092f] text-[0.72rem] text-white/85 px-3.5 py-2.5 font-mono leading-relaxed overflow-y-auto border border-white/10">
+            Ждём первую загрузку...
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
-    </main>
+      <!-- Таблица стабильных ссылок -->
+      <section class="glass-card p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <div>
+            <div class="card-header mb-1">Готовые стабильные ссылки</div>
+            <p class="text-xs text-brandInk/70">
+              Эти URL можно отдавать наружу или прокидывать в другие системы.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              id="copyTsvButton"
+              type="button"
+              class="rounded-full border border-white/80 bg-white/80 px-3.5 py-1.5 text-[0.75rem] font-medium text-brandInk/80 hover:bg-white transition">
+              Скопировать в TSV
+            </button>
+            <button
+              id="copyLinksButton"
+              type="button"
+              class="rounded-full border border-brandLavenderDeep/70 bg-brandLavenderDeep/90 px-3.5 py-1.5 text-[0.75rem] font-medium text-white hover:bg-brandLavenderDeep transition">
+              Скопировать только ссылки
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-2xl overflow-hidden border border-white/70 bg-[#170625] text-xs text-white/80">
+          <div class="grid grid-cols-[40px_minmax(0,2fr)_minmax(0,3fr)_110px] bg-[#210b38] px-4 py-2.5 font-medium text-[0.7rem] tracking-wide uppercase text-white/70">
+            <div>#</div>
+            <div>TalkID / исходный</div>
+            <div>Стабильный mp3 URL</div>
+            <div class="text-right">Действия</div>
+          </div>
+
+          <!-- Плейсхолдер при отсутствии данных -->
+          <div id="tableEmptyState" class="px-4 py-6 text-[0.8rem] text-center text-white/60">
+            Пока нет данных. Запусти обработку, чтобы увидеть таблицу.
+          </div>
+
+          <!-- Тело таблицы — JS может наполнять сюда строки -->
+          <div id="tableBody"></div>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <script src="/static/main.js"></script>
+  <!-- Твой рабочий JS можно вставить сюда -->
+  <!--
+  <script>
+    // hook на элементы по id: presignedInput, limitInput, processButton, clearInputButton,
+    // badgeSuccess, badgeInProgress, badgeErrors, statusCounterProcessed, statusCounterTotal,
+    // logArea, clearLogButton, tableBody, tableEmptyState, copyTsvButton, copyLinksButton
+  </script>
+  -->
 </body>
 </html>
-
